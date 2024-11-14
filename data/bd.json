@@ -1,0 +1,41 @@
+{
+    "despesas": [
+        {
+            "id": 1,
+            "descricao": "Conta de luz",
+            "valor": 100.00
+        },
+        {
+            "id": 2,
+            "descricao": "Conta de água",
+            "valor": 50.00
+        },
+        {
+            "id": 3,
+            "descricao": "Conta de telefone",
+            "valor": 50.00
+        },
+        {
+            "id": 4,
+            "descricao": "Supermercado",
+            "valor": 500.00
+        },
+        {
+            "id": 5,
+            "descricao": "Cartão de crédito",
+            "valor": 200.00
+        }
+    ],
+    "receitas": [
+        {
+            "id": 1,
+            "descricao": "Salário",
+            "valor": 2000.00
+        },
+        {
+            "id": 2,
+            "descricao": "Freela",
+            "valor": 500.00
+        }
+    ]
+}

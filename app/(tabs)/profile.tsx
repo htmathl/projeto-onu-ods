@@ -4,7 +4,7 @@ import React from "react";
 export default function Page() {
     return(
         <View style={styles.container}>
-            <Text>Caralho!</Text>
+            <Text>Low Profile!</Text>
         </View>
     )
 }
