@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
         // flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#fff",
     },
     tabbar: {
         position: "absolute",
@@ -69,9 +70,10 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         borderRadius: 35,
         shadowColor: "#000",
-        shadowOffset: { width: 10, height: 10 },
+        shadowOffset: { width: 0, height: 10 },
         shadowRadius: 10,
         shadowOpacity: 0.1,
+        elevation: 4,
         minWidth: 250,
     }
 });

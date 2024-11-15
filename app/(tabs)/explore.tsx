@@ -1,36 +1,27 @@
 import { View, StyleSheet, TextInput, Text, Pressable } from "react-native";
 import React, { useState } from "react";
-import RadioGroup from 'react-native-radio-buttons-group';
 import colors from "@/constants/colors";
+import Radio from "@/components/input";
 
 export default function Page() {
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
     const [type, setType] = useState("");
 
-    const handleSubmit = () => {
-        // Lógica para lidar com o envio do formulário
-        console.log({ description, amount, type });
-    };
+    const [ fruit, setFruit ] = useState('receita');
 
     return (
         <View style={styles.container}>
-            <RadioGroup
-                radioButtons={[
-                    {
-                        id: '1',
-                        label: 'Entrada',
-                        value: 'income',
-                        selected: true,
-                    },
-                    {
-                        id: '2',
-                        label: 'Saída',
-                        value: 'outcome',
-                    },
-                ]}
-                
-            layout="row" />
+
+            <Radio options={[
+                { label: "Receita", value: "receita" },
+                { label: "Despesa", value: "despesa" },
+            ]}
+
+                checkedValue={fruit}
+                onChange={setFruit}
+                style={{marginBottom: 15}}
+            />
 
             <TextInput
                 style={[styles.input]}
@@ -47,7 +38,9 @@ export default function Page() {
                 keyboardType="numeric" 
             />
 
-            <Pressable style={styles.button} onPress={handleSubmit}>
+            <Pressable style={styles.button} onPress={() => {
+                alert(`Descrição: ${description}\nValor: ${amount}\nTipo: ${fruit}`)
+            }}>
                 <Text style={styles.buttonText}>Enviar</Text>
             </Pressable>
         </View>
@@ -62,7 +55,7 @@ const styles = StyleSheet.create({
         padding: 24,
         height: 100,
         gap: 24,
-
+        backgroundColor: '#fff'
     },
 
     input: {
@@ -91,6 +84,5 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#ffffff',
         textAlign: "center",
-
     }
 });
