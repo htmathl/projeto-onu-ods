@@ -54,7 +54,8 @@ export default function MyTabBar({ state, descriptors, navigation }: BottomTabBa
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        height: 150,
+        // flex: 1,
         justifyContent: "center",
         alignItems: "center",
     },
