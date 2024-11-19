@@ -2,7 +2,19 @@ import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import colors from "@/constants/colors";
 
-const Radio = ({options, checkedValue, onChange, style} : {options:any, checkedValue:string, onChange:Function, style:object}) => {
+interface RadioOption {
+    label: string;
+    value: string;
+}
+
+interface RadioProps {
+    options: RadioOption[];
+    checkedValue: string;
+    onChange: (value: string) => void;
+    style?: object;
+}
+
+const Radio = ({options, checkedValue, onChange, style} : RadioProps) => {
     return (
         <View style={[styles.contaier, style]}>
             {options.map((option:{ label:string, value:string }) => {

@@ -1,26 +1,89 @@
-import { Text, View, StyleSheet, FlatList, ScrollView } from "react-native";
+import { Text, View, StyleSheet, FlatList, RefreshControl } from "react-native";
 import React from "react";
-import data from "@/data/bd.json"
+import { Stack } from "expo-router";
+import Header from "@/components/header";
+import { getMovimentacoes } from "@/data/storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Page() {
-    return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.header}>Despesas</Text>
-            {data.despesas.map((item) => (
-                <View key={item.id} style={styles.item}>
-                    <Text style={styles.descricao}>{item.descricao}</Text>
-                    <Text style={styles.valor2}>R$ {item.valor.toFixed(2)}</Text>
-                </View>
-            ))}
 
-            <Text style={styles.header}>Receitas</Text>
-            {data.receitas.map((item) => (
-                <View key={item.id} style={styles.item}>
-                    <Text style={styles.descricao}>{item.descricao}</Text>
-                    <Text style={styles.valor}>R$ {item.valor.toFixed(2)}</Text>
-                </View>
-            ))}
-        </ScrollView>
+    interface Movimentacoes {
+        despesas: {
+            id: string;
+            description: string;
+            amount: number;
+        }[];
+        receitas: {
+            id: string;
+            description: string;
+            amount: number;
+        }[];
+    }
+
+    const [isRefresh, setIsRefresh] = React.useState(false);
+
+    const [data1, setData] = React.useState({ despesas: [], receitas: [] } as Movimentacoes);
+
+    const [loading, setLoading] = React.useState(true);
+
+    async function listTransaction() {
+        setIsRefresh(true);
+        const transaction = await getMovimentacoes();
+
+        setLoading(false);
+        setData(transaction);
+        setIsRefresh(false)
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            listTransaction();
+        }, [])
+    )
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Carregando...</Text>
+            </View>
+        );
+
+    } else return (
+        <>
+            <Stack.Screen options={{ header: () => <Header label="Movimentações" /> }} />
+            <FlatList
+                style={styles.container}
+                refreshControl={
+                    <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
+                }
+                data={[...data1.despesas, ...data1.receitas]}
+
+                renderItem={() => null}
+                
+                keyExtractor={(item) => item.id}
+                ListHeaderComponent={
+                    <>
+                        <Text style={styles.header}>Despesas</Text>
+                        {data1.despesas.length === 0 && <Text>Não há despesas cadastradas.</Text>}
+                        {data1.despesas.map((despesa) => (
+                            <View key={despesa.id} style={styles.item}>
+                                <Text style={styles.descricao}>{despesa.description}</Text>
+                                <Text style={styles.valor2}>R$ {despesa.amount}</Text>
+                            </View>
+                        ))}
+                        
+                        <Text style={styles.header}>Receitas</Text>
+                        {data1.receitas.length === 0 && <Text>Não há receitas cadastradas.</Text>}
+                        {data1.receitas.map((receita) => (
+                            <View key={receita.id} style={styles.item}>
+                                <Text style={styles.descricao}>{receita.description}</Text>
+                                <Text style={styles.valor}>R$ {receita.amount}</Text>
+                            </View>
+                        ))}
+                    </>
+                }
+            />
+        </>
     )
 }
 

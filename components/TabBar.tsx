@@ -2,6 +2,7 @@ import { View, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import React from 'react';
 import TabBarButton from './TabBarButton';
+import { getMovimentacoes } from '@/data/storage';
 
 export default function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     return (
