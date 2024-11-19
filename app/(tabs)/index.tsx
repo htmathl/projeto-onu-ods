@@ -4,7 +4,7 @@ import colors from "@/constants/colors";
 import { Feather, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import Header from "@/components/header";
-import { ScrollView } from "react-native-gesture-handler";
+import { GestureHandlerRootView, ScrollView } from "react-native-gesture-handler";
 
 const receitas = [
     { id: '1', descricao: 'Salário', valor: 5000 },
@@ -25,42 +25,48 @@ const totalGastos = somaDespesas;
 export default function Page() {
     return (
         <>
-            <Stack.Screen options={{ header: () => <Header label="Dashboard" color={colors.branco} background={colors.roxo} /> }} />
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.title1}>Minhas Despesas </Text>
-                    <Text style={styles.title2}>R$ {totalGastos}</Text>
-                </View>
-                <View style={styles.container1}>
-                    <Text style={styles.subtitle}>Maiores Gastos <Feather name="trending-down" size={24} /></Text>
-                    <FlatList
-                        data={despesas}
-                        renderItem={({ item }) => (
-                            <View style={styles.card}>
-                                <Text style={styles.descricao1}>{item.descricao}</Text>
-                                <Text style={styles.descricao}>R$ {item.valor}</Text>
-                            </View>
-                        )}
-                        keyExtractor={item => item.id}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                    />
+            <Stack.Screen options={{ header: () => <Header label="Novembro de 2024" color={colors.branco} background={colors.roxo} /> }} />
+            <GestureHandlerRootView>
+                <View style={styles.container}>
+                    
+                    <ScrollView>
+                    <View style={styles.header}>
+                        <Text style={styles.title1}>Minhas Despesas </Text>
+                        <Text style={styles.title2}>R$ {totalGastos}</Text>
+                    </View>
+                        <View style={styles.container1}>
+                            <Text style={styles.subtitle}>Maiores Gastos <Feather name="trending-down" size={24} /></Text>
+                            <FlatList
+                                data={despesas}
+                                renderItem={({ item }) => (
+                                    <View style={styles.card}>
+                                        <Text style={styles.descricao1}>{item.descricao}</Text>
+                                        <Text style={styles.descricao}>R$ {item.valor}</Text>
+                                    </View>
+                                )}
+                                keyExtractor={item => item.id}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                            />
 
-                    <Text style={styles.subtitle}>Fontes de Renda <Feather name="trending-up" size={24} /> </Text>
-                    <FlatList
-                        data={receitas}
-                        renderItem={({ item }) => (
-                            <View style={styles.card}>
-                                <Text style={styles.descricao1}>{item.descricao}</Text>
-                                <Text style={styles.descricao}>R$ {item.valor}</Text>
-                            </View>
-                        )}
-                        keyExtractor={item => item.id}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                    />
+                            <Text style={styles.subtitle}>Fontes de Renda <Feather name="trending-up" size={24} /> </Text>
+                            <FlatList
+                                data={receitas}
+                                renderItem={({ item }) => (
+                                    <View style={styles.card}>
+                                        <Text style={styles.descricao1}>{item.descricao}</Text>
+                                        <Text style={styles.descricao}>R$ {item.valor}</Text>
+                                    </View>
+                                )}
+                                keyExtractor={item => item.id}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                            />
+                        </View>
+                        <View style={styles.space}></View>
+                    </ScrollView>
                 </View>
-            </View>
+            </GestureHandlerRootView>
         </>
     );
 }
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
 
     card: {
         width: 120,
-        height: 140,
+        height: 120,
         padding: 15,
         marginVertical: 10,
         marginHorizontal: 5,
@@ -125,15 +131,18 @@ const styles = StyleSheet.create({
     },
     descricao1: {
         color: colors.branco,
-        textAlign: "left",
+        textAlign: "center",
         fontSize: 12,
         fontWeight: "bold",
     },
     descricao: {
         color: colors.branco,
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: "bold",
-        marginTop: 30,
-        textAlign: "center",
+        marginTop: 35,
+        textAlign: "left",
     },
+    space: {
+        height: 250,
+    }
 });

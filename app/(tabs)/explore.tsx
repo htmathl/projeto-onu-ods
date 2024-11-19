@@ -37,7 +37,7 @@ export default function Page() {
     const handleOnPressSubmit = async () => {
 
         if( !description || !amount ) {
-            ToastAndroid.showWithGravity('Preencha todos os campos!', ToastAndroid.LONG, ToastAndroid.TOP);
+            ToastAndroid.show('Preencha todos os campos!', ToastAndroid.SHORT);
             return;
         }
 
@@ -55,7 +55,7 @@ export default function Page() {
             setSelectedDate(formatDateView(today));
             setType('receitas');
 
-            ToastAndroid.showWithGravity('Movimentação salva com sucesso!', ToastAndroid.LONG, ToastAndroid.TOP);
+            ToastAndroid.show('Movimentação salva com sucesso!', ToastAndroid.SHORT);
 
         } catch (error) {
             ToastAndroid.showWithGravity('Erro ao salvar movimentação!', ToastAndroid.LONG, ToastAndroid.TOP);
@@ -152,9 +152,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         padding: 24,
-        height: 100,
         gap: 24,
-        backgroundColor: '#fff'
+        paddingBottom: 150,
+        backgroundColor: '#fff',
     },
 
     input: {
