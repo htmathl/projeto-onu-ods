@@ -4,5 +4,7 @@ export default {
     white: '#FCFCFC',
     primary: '#723FEB',
     blue: '#97E0F7',
-    roxo: '#673ab7'
+    roxo: '#673ab7',
+    azul: '#8BDBF4',
+    branco: '#fff',
 }

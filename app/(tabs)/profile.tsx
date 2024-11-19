@@ -39,7 +39,7 @@ export default function Page() {
         React.useCallback(() => {
             listTransaction();
         }, [])
-    )
+    );
 
     if (loading) {
         return (
@@ -50,7 +50,7 @@ export default function Page() {
 
     } else return (
         <>
-            <Stack.Screen options={{ header: () => <Header label="Movimentações" /> }} />
+            <Stack.Screen options={{ header: () => <Header label="Movimentações"/> }} />
             <FlatList
                 style={styles.container}
                 refreshControl={

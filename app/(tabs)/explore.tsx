@@ -1,5 +1,5 @@
-import { View, StyleSheet, TextInput, Text, Pressable, Modal } from "react-native";
-import React, { FC, useState } from "react";
+import { View, StyleSheet, TextInput, Text, Pressable, Modal, ToastAndroid } from "react-native";
+import React, { useState } from "react";
 import colors from "@/constants/colors";
 import Radio from "@/components/input";
 import Header from "@/components/header";
@@ -35,23 +35,13 @@ export default function Page() {
     const handleOnPressSrartDate = () => setOpenDatePicker(!openDatePicker);
 
     const handleOnPressSubmit = async () => {
+
+        if( !description || !amount ) {
+            ToastAndroid.showWithGravity('Preencha todos os campos!', ToastAndroid.LONG, ToastAndroid.TOP);
+            return;
+        }
+
         try {
-            // const existingData = await AsyncStorage.getItem('movimentacoes');
-            // let newData = existingData ? JSON.parse(existingData) : {};
-
-            // if (!newData[type]) {
-            //     newData[type] = [];
-            // }
-
-            // newData[type].push({
-            //     id: Math.random().toString(36).substr(2, 9),
-            //     description: description,
-            //     amount: amount,
-            //     date: formatDateToISO(selectedDate)
-            // });
-
-            // await AsyncStorage.setItem('movimentacoes', JSON.stringify(newData));
-
             await saveMovimentacao({
                 id: Math.random().toString(36).substr(2, 9),
                 description,
@@ -65,19 +55,10 @@ export default function Page() {
             setSelectedDate(formatDateView(today));
             setType('receitas');
 
-            alert('Salvou porraaaaa!');
-        } catch (error) {
-            console.error(error);
-        }
-    }
+            ToastAndroid.showWithGravity('Movimentação salva com sucesso!', ToastAndroid.LONG, ToastAndroid.TOP);
 
-    const show = async () => {
-        try {
-            const value = await AsyncStorage.getItem('movimentacoes');
-            if (value !== null) {
-                alert(JSON.stringify(JSON.parse(value), null, 2));
-            }
         } catch (error) {
+            ToastAndroid.showWithGravity('Erro ao salvar movimentação!', ToastAndroid.LONG, ToastAndroid.TOP);
             console.error(error);
         }
     }
@@ -124,10 +105,6 @@ export default function Page() {
 
                 <Pressable style={styles.button} onPress={handleOnPressSubmit}>
                     <Text style={styles.buttonText}>Enviar</Text>
-                </Pressable>
-
-                <Pressable style={styles.button} onPress={show}>
-                    <Text style={styles.buttonText}>Mostra tudo</Text>
                 </Pressable>
 
                 <Pressable style={styles.button} onPress={ () => {

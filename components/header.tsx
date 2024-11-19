@@ -3,11 +3,17 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "@/constants/colors";
 
-const Header = ({label} : {label:string}) => {
+interface HeaderProps {
+    label: string;
+    background?: string;
+    color?: string;
+}
+
+const Header = ({label, background='#fff', color='#673ab7'} : HeaderProps) => {
     return (
-        <SafeAreaView style={{backgroundColor: '#fff'}}>
+        <SafeAreaView style={{backgroundColor: background}}>
             <View style={styles.container}>
-                <Text style={styles.text}>{label}</Text>
+                <Text style={[styles.text, {color: color}]}>{label}</Text>
             </View>
         </SafeAreaView>
     )
