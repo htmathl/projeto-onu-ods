@@ -50,3 +50,43 @@ export const limparMovimentacoes = async () => {
     return false;
   }
 };
+
+export const excluirMovimentacao = async (id: string) => {
+  try {
+    const data = await AsyncStorage.getItem('movimentacoes');
+    if (data) {
+      const movimentacoes = JSON.parse(data) as { receitas: Movimentacao[], despesas: Movimentacao[] };
+      
+      const updatedReceitas = movimentacoes.receitas.filter(item => item.id !== id);
+      const updatedDespesas = movimentacoes.despesas.filter(item => item.id !== id);
+
+      const updatedMovimentacoes = {
+        receitas: updatedReceitas,
+        despesas: updatedDespesas
+      };
+
+      await AsyncStorage.setItem('movimentacoes', JSON.stringify(updatedMovimentacoes));
+      return true;
+    } else {
+      console.error('Nenhuma movimentação encontrada');
+      return false;
+    }
+  } catch (error) {
+    console.error('Erro ao excluir movimentação:', error);
+    return false;
+  }
+};
+
+export const filtrarMovimentacoes = async (data: string) => {
+  try {
+    const movimentacoes = await getMovimentacoes();
+    const receitas = movimentacoes.receitas.filter((item: { date: string; }) => item.date === data);
+    const despesas = movimentacoes.despesas.filter((item: { date: string; }) => item.date === data);
+    return { receitas, despesas };
+  } catch (error) {
+    console.error('Erro ao filtrar movimentações:', error);
+    return { receitas: [], despesas: [] };
+  }
+};
+
+

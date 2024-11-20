@@ -1,64 +1,134 @@
-import { Text, View, StyleSheet, FlatList } from "react-native";
+import { Text, View, StyleSheet, FlatList, RefreshControl } from "react-native";
 import React from "react";
 import colors from "@/constants/colors";
-import { Feather, MaterialIcons, AntDesign } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import Header from "@/components/header";
 import { GestureHandlerRootView, ScrollView } from "react-native-gesture-handler";
+import { getMovimentacoes } from "@/data/storage";
+import { useFocusEffect } from "@react-navigation/native";
+const today = new Date();
+const month = today.getMonth();
+const year = today.getFullYear();
+const dictMeses: { [key: number]: string } = {
+    0: 'Janeiro',
+    1: 'Fevereiro',
+    2: 'Março',
+    3: 'Abril',
+    4: 'Maio',
+    5: 'Junho',
+    6: 'Julho',
+    7: 'Agosto',
+    8: 'Setembro',
+    9: 'Outubro',
+    10: 'Novembro',
+    11: 'Dezembro',
+};
 
-const receitas = [
-    { id: '1', descricao: 'Salário', valor: 5000 },
-    { id: '2', descricao: 'Freelance', valor: 2000 },
-];
+interface Movimentacoes {
+    despesas: {
+        id: string;
+        description: string;
+        amount: number;
+    }[];
+    receitas: {
+        id: string;
+        description: string;
+        amount: number;
+    }[];
+}
 
-const despesas = [
-    { id: '1', descricao: 'Aluguel', valor: 1500 },
-    { id: '2', descricao: 'Supermercado', valor: 800 },
-    { id: '3', descricao: 'Supermercado', valor: 800 },
-    { id: '4', descricao: 'Supermercado', valor: 800 },
-];
-
-const somaReceitas = receitas.reduce((acc, receita) => acc + receita.valor, 0);
-const somaDespesas = despesas.reduce((acc, despesa) => acc + despesa.valor, 0);
-const totalGastos = somaDespesas;
+interface despesas {
+    id: string;
+    description: string;
+    amount: number;
+}
 
 export default function Page() {
-    return (
+
+
+    const [isRefresh, setIsRefresh] = React.useState(false);
+
+    const [data1, setData] = React.useState({ despesas: [], receitas: [] } as Movimentacoes);
+
+    const [loading, setLoading] = React.useState(true);
+
+    const [despesas, setDespesas] = React.useState(0);
+
+    async function listTransaction() {
+        setIsRefresh(true);
+        const transaction = await getMovimentacoes();
+
+        setLoading(false);
+        setData(transaction);
+        setIsRefresh(false);
+
+        setDespesas(transaction.despesas.reduce((acc: number, item: despesas) => acc + item.amount, 0));
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            listTransaction();
+        }, [])
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Carregando...</Text>
+            </View>
+        );
+
+    } else return (
         <>
-            <Stack.Screen options={{ header: () => <Header label="Novembro de 2024" color={colors.branco} background={colors.roxo} /> }} />
+            <Stack.Screen options={{ header: () => <Header label={dictMeses[month] + " de " + year} color={colors.branco} background={colors.roxo} /> }} />
             <GestureHandlerRootView>
                 <View style={styles.container}>
-                    
+
                     <ScrollView>
-                    <View style={styles.header}>
-                        <Text style={styles.title1}>Minhas Despesas </Text>
-                        <Text style={styles.title2}>R$ {totalGastos}</Text>
-                    </View>
+                        <View style={styles.header}>
+                            <Text style={styles.title1}>Minhas Despesas </Text>
+                            <Text style={styles.title2}>R$ {despesas}</Text>
+                        </View>
                         <View style={styles.container1}>
                             <Text style={styles.subtitle}>Maiores Gastos <Feather name="trending-down" size={24} /></Text>
                             <FlatList
-                                data={despesas}
+                                refreshControl={
+                                    <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
+                                }
+                                data={[...data1.despesas].sort((a, b) => b.amount - a.amount).slice(0, 5)}
+
                                 renderItem={({ item }) => (
-                                    <View style={styles.card}>
-                                        <Text style={styles.descricao1}>{item.descricao}</Text>
-                                        <Text style={styles.descricao}>R$ {item.valor}</Text>
-                                    </View>
+                                    <>
+                                        {data1.despesas.length === 0 && <Text>Não há fontes de renda cadastradas</Text>}
+                                        <View key={item.id} style={styles.card}>
+                                            <Text style={styles.descricao1}>{item.description}</Text>
+                                            <Text style={styles.descricao}>R$ {item.amount}</Text>
+                                        </View>
+                                    </>
                                 )}
-                                keyExtractor={item => item.id}
+                                keyExtractor={(item) => item.id}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                             />
 
                             <Text style={styles.subtitle}>Fontes de Renda <Feather name="trending-up" size={24} /> </Text>
                             <FlatList
-                                data={receitas}
+                                refreshControl={
+                                    <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
+                                }
+                                data={[...data1.receitas]}
+
                                 renderItem={({ item }) => (
-                                    <View style={styles.card}>
-                                        <Text style={styles.descricao1}>{item.descricao}</Text>
-                                        <Text style={styles.descricao}>R$ {item.valor}</Text>
-                                    </View>
+                                    <>
+                                        {data1.receitas.length === 0 && <Text>Não há fontes de renda cadastradas</Text>}
+                                        <View key={item.id} style={styles.card}>
+                                            <Text style={styles.descricao1}>{item.description}</Text>
+                                            <Text style={styles.descricao}>R$ {item.amount}</Text>
+                                        </View>
+                                    </>
                                 )}
-                                keyExtractor={item => item.id}
+                                keyExtractor={(item) => item.id}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                             />
@@ -78,7 +148,7 @@ const styles = StyleSheet.create({
     },
 
     container1: {
-        padding: 0,
+        padding: 10,
     },
 
     header: {

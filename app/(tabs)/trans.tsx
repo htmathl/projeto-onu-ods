@@ -2,8 +2,11 @@ import { Text, View, StyleSheet, FlatList, RefreshControl } from "react-native";
 import React from "react";
 import { Stack } from "expo-router";
 import Header from "@/components/header";
-import { getMovimentacoes } from "@/data/storage";
+import { excluirMovimentacao, getMovimentacoes } from "@/data/storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
+import { InputDate } from "@/components/inputDate";
+import colors from "@/constants/colors";
 
 export default function Page() {
 
@@ -40,7 +43,7 @@ export default function Page() {
             listTransaction();
         }, [])
     );
-
+    
     if (loading) {
         return (
             <View style={styles.container}>
@@ -50,7 +53,10 @@ export default function Page() {
 
     } else return (
         <>
-            <Stack.Screen options={{ header: () => <Header label="Movimentações"/> }} />
+            <Stack.Screen options={{ header: () => <Header label="Movimentações" /> }} />
+            <View style={ { backgroundColor: colors.branco, alignItems: 'center', paddingBottom: 10 } }>
+                <InputDate></InputDate>
+            </View>
             <FlatList
                 style={styles.container}
                 refreshControl={
@@ -59,7 +65,7 @@ export default function Page() {
                 data={[...data1.despesas, ...data1.receitas]}
 
                 renderItem={() => null}
-                
+
                 keyExtractor={(item) => item.id}
                 ListHeaderComponent={
                     <>
@@ -67,19 +73,27 @@ export default function Page() {
                         {data1.despesas.length === 0 && <Text>Não há despesas cadastradas.</Text>}
                         {data1.despesas.map((despesa) => (
                             <View key={despesa.id} style={styles.item}>
-                                <Text style={styles.descricao}>{despesa.description}</Text>
-                                <Text style={styles.valor2}>R$ {despesa.amount}</Text>
+                                <View><Feather onPress={() => {excluirMovimentacao(despesa.id); setTimeout(() => listTransaction(), 50)}} name="trash" size={24} /></View>
+                                <View style={styles.transContainer}>
+                                    <Text style={styles.descricao}>{despesa.description}</Text>
+                                    <Text style={styles.valor2}>R$ {despesa.amount}</Text>
+                                </View>
                             </View>
                         ))}
-                        
-                        <Text style={styles.header}>Receitas</Text>
+
+                        <Text style={[styles.header, {marginTop: 30}]}>Receitas</Text>
                         {data1.receitas.length === 0 && <Text>Não há receitas cadastradas.</Text>}
                         {data1.receitas.map((receita) => (
                             <View key={receita.id} style={styles.item}>
-                                <Text style={styles.descricao}>{receita.description}</Text>
-                                <Text style={styles.valor}>R$ {receita.amount}</Text>
+                                <View><Feather onPress={() => {excluirMovimentacao(receita.id); setTimeout(() => listTransaction(), 50)}} name="trash" size={24} /></View>
+                                <View style={styles.transContainer}>
+                                    <Text style={styles.descricao}>{receita.description}</Text>
+                                    <Text style={styles.valor}>R$ {receita.amount}</Text>
+                                </View>
                             </View>
+
                         ))}
+                        <View style={styles.space}></View>
                     </>
                 }
             />
@@ -97,17 +111,19 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
-        marginTop: 30,
     },
     item: {
         marginTop: 15,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
         paddingVertical: 8,
         borderColor: '#000',
         borderWidth: 2,
         padding: 10,
         borderRadius: 12,
+    },
+    transContainer: {
+        marginTop: 10,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
     },
     descricao: {
         fontSize: 18,
@@ -119,5 +135,8 @@ const styles = StyleSheet.create({
     valor2: {
         fontSize: 18,
         color: 'red',
+    },
+    space: {
+        height: 160,
     },
 });
