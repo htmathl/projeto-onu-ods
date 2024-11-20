@@ -6,7 +6,6 @@ import Header from "@/components/header";
 import { Stack } from "expo-router";
 import DatePicker from "react-native-modern-datepicker"
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { saveMovimentacao } from "@/data/storage";
 
 export default function Page() {
@@ -34,6 +33,17 @@ export default function Page() {
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const handleOnPressSrartDate = () => setOpenDatePicker(!openDatePicker);
 
+    const handleInputChange = (text: string) => {
+        const formattedText = text.replace(/[^0-9,]/g, '');
+    
+        // Substitui múltiplas vírgulas por uma única vírgula
+        const singleCommaText = formattedText.replace(/,+/g, ',');
+
+        // Atualiza o estado com o valor formatado
+        setAmount(singleCommaText);
+      };
+    
+
     const handleOnPressSubmit = async () => {
 
         if( !description || !amount ) {
@@ -45,7 +55,7 @@ export default function Page() {
             await saveMovimentacao({
                 id: Math.random().toString(36).substr(2, 9),
                 description,
-                amount: Number(amount),
+                amount: Number(amount.replace(',', '.')),
                 type: type as 'receitas' | 'despesas',
                 date: formatDateToISO(selectedDate)
             })
@@ -89,7 +99,7 @@ export default function Page() {
                     <TextInput
                         style={[styles.input, styles.inputV]}
                         value={amount}
-                        onChangeText={setAmount}
+                        onChangeText={handleInputChange}
                         placeholder="Valor"
                         keyboardType="numeric"
                     />
@@ -107,12 +117,12 @@ export default function Page() {
                     <Text style={styles.buttonText}>Enviar</Text>
                 </Pressable>
 
-                <Pressable style={styles.button} onPress={ () => {
+                {/*<Pressable style={styles.button} onPress={ () => {
                     AsyncStorage.removeItem('movimentacoes');
                     alert('Excluiu tudo!');
                 }}>
                     <Text style={styles.buttonText}>Excluir tudo</Text>
-                </Pressable>
+                </Pressable>*/}
 
                 <Modal
                     animationType="fade"

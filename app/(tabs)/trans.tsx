@@ -43,6 +43,8 @@ export default function Page() {
             listTransaction();
         }, [])
     );
+
+    let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
     
     if (loading) {
         return (
@@ -76,7 +78,7 @@ export default function Page() {
                                 <View><Feather onPress={() => {excluirMovimentacao(despesa.id); setTimeout(() => listTransaction(), 50)}} name="trash" size={24} /></View>
                                 <View style={styles.transContainer}>
                                     <Text style={styles.descricao}>{despesa.description}</Text>
-                                    <Text style={styles.valor2}>R$ {despesa.amount}</Text>
+                                    <Text style={styles.valor2}>{mask.format(despesa.amount)}</Text>
                                 </View>
                             </View>
                         ))}
@@ -88,7 +90,7 @@ export default function Page() {
                                 <View><Feather onPress={() => {excluirMovimentacao(receita.id); setTimeout(() => listTransaction(), 50)}} name="trash" size={24} /></View>
                                 <View style={styles.transContainer}>
                                     <Text style={styles.descricao}>{receita.description}</Text>
-                                    <Text style={styles.valor}>R$ {receita.amount}</Text>
+                                    <Text style={styles.valor}>{mask.format(receita.amount)}</Text>
                                 </View>
                             </View>
 

@@ -7,6 +7,7 @@ import Header from "@/components/header";
 import { GestureHandlerRootView, ScrollView } from "react-native-gesture-handler";
 import { getMovimentacoes } from "@/data/storage";
 import { useFocusEffect } from "@react-navigation/native";
+
 const today = new Date();
 const month = today.getMonth();
 const year = today.getFullYear();
@@ -54,6 +55,11 @@ export default function Page() {
     const [loading, setLoading] = React.useState(true);
 
     const [despesas, setDespesas] = React.useState(0);
+    const [receitas, setReceitas] = React.useState(0);
+
+    const [toggleDespesa, setToggleDespesa] = React.useState(false);
+
+    let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
     async function listTransaction() {
         setIsRefresh(true);
@@ -63,7 +69,11 @@ export default function Page() {
         setData(transaction);
         setIsRefresh(false);
 
-        setDespesas(transaction.despesas.reduce((acc: number, item: despesas) => acc + item.amount, 0));
+        const totalDespesas = transaction.despesas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
+        const totalReceitas = transaction.receitas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
+
+        setDespesas(totalDespesas);
+        setReceitas(totalReceitas);
     }
 
     useFocusEffect(
@@ -85,27 +95,41 @@ export default function Page() {
             <GestureHandlerRootView>
                 <View style={styles.container}>
 
-                    <ScrollView>
+                    <ScrollView
+                        refreshControl={
+                            <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
+                        }
+                    >
                         <View style={styles.header}>
-                            <Text style={styles.title1}>Minhas Despesas </Text>
-                            <Text style={styles.title2}>R$ {despesas}</Text>
+                            <View>
+                                <Text style={styles.title1}>Meu Balanço</Text>
+                                <Text style={styles.title2}>{mask.format(receitas - despesas)}</Text>
+                            </View>
+                            {
+                                toggleDespesa &&
+                                <View style={{ flexDirection: 'row', gap: 60, paddingTop: 20 }}>
+                                    <View>
+                                        <Text style={[styles.title1, { fontSize: 14 }]}>Receitas</Text>
+                                        <Text style={[styles.title2, { fontSize: 20 }]}>{mask.format(receitas)}</Text>
+                                    </View>
+
+                                    <View>
+                                        <Text style={[styles.title1, { fontSize: 14 }]}>Despesas</Text>
+                                        <Text style={[styles.title2, { fontSize: 20 }]}>{mask.format(despesas)}</Text>
+                                    </View>
+                                </View>
+                            }
+                            <Feather name={!toggleDespesa ? "arrow-down" : "arrow-up"} size={30} color={colors.branco} onPress={() => { setToggleDespesa(!toggleDespesa); }} />
                         </View>
                         <View style={styles.container1}>
                             <Text style={styles.subtitle}>Maiores Gastos <Feather name="trending-down" size={24} /></Text>
                             <FlatList
-                                refreshControl={
-                                    <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
-                                }
                                 data={[...data1.despesas].sort((a, b) => b.amount - a.amount).slice(0, 5)}
-
                                 renderItem={({ item }) => (
-                                    <>
-                                        {data1.despesas.length === 0 && <Text>Não há fontes de renda cadastradas</Text>}
-                                        <View key={item.id} style={styles.card}>
-                                            <Text style={styles.descricao1}>{item.description}</Text>
-                                            <Text style={styles.descricao}>R$ {item.amount}</Text>
-                                        </View>
-                                    </>
+                                    <View key={item.id} style={styles.card}>
+                                        <Text style={styles.descricao1}>{item.description}</Text>
+                                        <Text style={styles.descricao}>{mask.format(item.amount)}</Text>
+                                    </View>
                                 )}
                                 keyExtractor={(item) => item.id}
                                 horizontal
@@ -118,15 +142,11 @@ export default function Page() {
                                     <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
                                 }
                                 data={[...data1.receitas]}
-
                                 renderItem={({ item }) => (
-                                    <>
-                                        {data1.receitas.length === 0 && <Text>Não há fontes de renda cadastradas</Text>}
-                                        <View key={item.id} style={styles.card}>
-                                            <Text style={styles.descricao1}>{item.description}</Text>
-                                            <Text style={styles.descricao}>R$ {item.amount}</Text>
-                                        </View>
-                                    </>
+                                    <View key={item.id} style={styles.card}>
+                                        <Text style={styles.descricao1}>{item.description}</Text>
+                                        <Text style={styles.descricao}>{mask.format(item.amount)}</Text>
+                                    </View>
                                 )}
                                 keyExtractor={(item) => item.id}
                                 horizontal
@@ -153,7 +173,7 @@ const styles = StyleSheet.create({
 
     header: {
         backgroundColor: colors.roxo,
-        justifyContent: "center",
+        justifyContent: "space-around",
         alignItems: "center",
         padding: 20,
         borderBottomLeftRadius: 36,
@@ -164,7 +184,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "400",
         marginBottom: 10,
-        textAlign: "left",
+        textAlign: "center",
         color: colors.branco,
     },
 
@@ -172,7 +192,7 @@ const styles = StyleSheet.create({
         fontSize: 35,
         fontWeight: "400",
         marginBottom: 20,
-        textAlign: "left",
+        textAlign: "center",
         color: colors.branco,
     },
 
@@ -185,7 +205,7 @@ const styles = StyleSheet.create({
     },
 
     card: {
-        width: 120,
+        minWidth: 170,
         height: 120,
         padding: 15,
         marginVertical: 10,
