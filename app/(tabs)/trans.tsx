@@ -23,6 +23,11 @@ export default function Page() {
         }[];
     }
 
+    interface filterMovimentacoes {
+        receitas: Array<{ id: string; description: string; amount: number; date: string }>;
+        despesas: Array<{ id: string; description: string; amount: number; date: string }>;
+    }
+
     const [isRefresh, setIsRefresh] = React.useState(false);
 
     const [data1, setData] = React.useState({ despesas: [], receitas: [] } as Movimentacoes);
@@ -44,6 +49,10 @@ export default function Page() {
         }, [])
     );
 
+    const handleDateChange = (filteredData: filterMovimentacoes) => {
+        setData(filteredData);
+    };
+
     let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
     
     if (loading) {
@@ -56,8 +65,8 @@ export default function Page() {
     } else return (
         <>
             <Stack.Screen options={{ header: () => <Header label="Movimentações" /> }} />
-            <View style={ { backgroundColor: colors.branco, alignItems: 'center', paddingBottom: 10 } }>
-                <InputDate></InputDate>
+            <View style={{ backgroundColor: colors.branco, alignItems: 'center', paddingBottom: 10 }}>
+                <InputDate onDateChange={handleDateChange} />
             </View>
             <FlatList
                 style={styles.container}
@@ -65,9 +74,7 @@ export default function Page() {
                     <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
                 }
                 data={[...data1.despesas, ...data1.receitas]}
-
                 renderItem={() => null}
-
                 keyExtractor={(item) => item.id}
                 ListHeaderComponent={
                     <>
@@ -75,7 +82,7 @@ export default function Page() {
                         {data1.despesas.length === 0 && <Text>Não há despesas cadastradas.</Text>}
                         {data1.despesas.map((despesa) => (
                             <View key={despesa.id} style={styles.item}>
-                                <View><Feather onPress={() => {excluirMovimentacao(despesa.id); setTimeout(() => listTransaction(), 50)}} name="trash" size={24} /></View>
+                                <View><Feather onPress={() => { excluirMovimentacao(despesa.id); setTimeout(() => listTransaction(), 50) }} name="trash" size={24} /></View>
                                 <View style={styles.transContainer}>
                                     <Text style={styles.descricao}>{despesa.description}</Text>
                                     <Text style={styles.valor2}>{mask.format(despesa.amount)}</Text>
@@ -83,17 +90,16 @@ export default function Page() {
                             </View>
                         ))}
 
-                        <Text style={[styles.header, {marginTop: 30}]}>Receitas</Text>
+                        <Text style={[styles.header, { marginTop: 30 }]}>Receitas</Text>
                         {data1.receitas.length === 0 && <Text>Não há receitas cadastradas.</Text>}
                         {data1.receitas.map((receita) => (
                             <View key={receita.id} style={styles.item}>
-                                <View><Feather onPress={() => {excluirMovimentacao(receita.id); setTimeout(() => listTransaction(), 50)}} name="trash" size={24} /></View>
+                                <View><Feather onPress={() => { excluirMovimentacao(receita.id); setTimeout(() => listTransaction(), 50) }} name="trash" size={24} /></View>
                                 <View style={styles.transContainer}>
                                     <Text style={styles.descricao}>{receita.description}</Text>
                                     <Text style={styles.valor}>{mask.format(receita.amount)}</Text>
                                 </View>
                             </View>
-
                         ))}
                         <View style={styles.space}></View>
                     </>
