@@ -5,15 +5,6 @@ import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native"
 import DatePicker from "react-native-modern-datepicker";
 
-interface Movimentacoes {
-    receitas: Array<{ id: string; description: string; amount: number; date: string }>;
-    despesas: Array<{ id: string; description: string; amount: number; date: string }>;
-}
-interface InputDateProps {
-    onDateChange: (data: Movimentacoes) => void;
-}
-
-
 export const InputDate = ({ onDateChange}: {onDateChange:Function}) => {
     const today = new Date();
 
