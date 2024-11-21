@@ -34,3 +34,6 @@ Para instalar e ver o FinX funcionando na prática siga as seguintes instruçõe
    ```bash
     npx expo start
    ```
+
+## Tecnologias 🛠️
+Este projeto foi desenvolvido utilizando React Native com TypeScript para garantir um desenvolvimento eficiente e seguro, aproveitando as vantagens da tipagem estática. A navegação entre telas foi implementada com React Navigation, proporcionando uma experiência de navegação fluida. Para a estilização, utilizamos Styled Components, que permite a criação de componentes reutilizáveis e estilos diretamente no JavaScript. A biblioteca Expo Vector Icons foi utilizada para incorporar ícones escaláveis e de alta qualidade em diversas partes do aplicativo. O gerenciamento de armazenamento local foi feito com AsyncStorage, garantindo a persistência dos dados simples. Além disso, Expo foi adotado para simplificar o processo de desenvolvimento e deploy, fornecendo um conjunto robusto de ferramentas prontas para uso
