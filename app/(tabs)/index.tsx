@@ -47,7 +47,6 @@ interface despesas {
 
 export default function Page() {
 
-
     const [isRefresh, setIsRefresh] = React.useState(false);
 
     const [data1, setData] = React.useState({ despesas: [], receitas: [] } as Movimentacoes);
