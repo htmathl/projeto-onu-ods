@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { Text, View, StyleSheet, FlatList, RefreshControl, Dimensions } from "react-native";
 import React from "react";
 import colors from "@/constants/colors";
 import { Feather } from "@expo/vector-icons";
@@ -7,6 +7,7 @@ import Header from "@/components/header";
 import { GestureHandlerRootView, ScrollView } from "react-native-gesture-handler";
 import { getMovimentacoes } from "@/data/storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { VictoryChart, VictoryLine, VictoryScatter, VictoryTheme, } from "victory-native"
 
 const today = new Date();
 const month = today.getMonth();
@@ -57,22 +58,36 @@ export default function Page() {
     const [receitas, setReceitas] = React.useState(0);
 
     const [toggleDespesa, setToggleDespesa] = React.useState(false);
+    const [chartData, setChartData] = React.useState([]);
 
     let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
     async function listTransaction() {
         setIsRefresh(true);
-        const transaction = await getMovimentacoes();
+        try {
+            const transaction = await getMovimentacoes();
 
-        setLoading(false);
-        setData(transaction);
-        setIsRefresh(false);
+            setLoading(false);
+            setData(transaction);
+            setIsRefresh(false);
 
-        const totalDespesas = transaction.despesas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
-        const totalReceitas = transaction.receitas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
+            const totalDespesas = transaction.despesas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
+            const totalReceitas = transaction.receitas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
 
-        setDespesas(totalDespesas);
-        setReceitas(totalReceitas);
+            setDespesas(totalDespesas);
+            setReceitas(totalReceitas);
+
+            // const formattedData = transaction.despesas.map((item, index) => ({
+            //     x: dictMeses[index % 12].substring(0, 3).toLowerCase(),
+            //     y: transaction.receitas[index] ? transaction.receitas[index].amount - item.amount : -item.amount
+            // }))
+
+            // setChartData(formattedData);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useFocusEffect(
@@ -120,8 +135,29 @@ export default function Page() {
                             }
                             <Feather name={!toggleDespesa ? "arrow-down" : "arrow-up"} size={30} color={colors.branco} onPress={() => { setToggleDespesa(!toggleDespesa); }} />
                         </View>
+
+                        {/* <VictoryChart
+                            height={390}
+                            theme={VictoryTheme.clean}
+                            width={Dimensions.get("window").width}
+                            padding={{ left: 50, right: 20, top: 20, bottom: 50 }}
+                        >
+                            <VictoryLine
+                                style={{
+                                    data: { stroke: colors.roxo },
+                                    parent: { border: "1px solid #ccc" }
+                                }}
+                                data={chartData}
+                            />
+                            <VictoryScatter
+                                style={{ data: { fill: colors.roxo } }}
+                                data={chartData}
+                                size={5}
+                            />
+                        </VictoryChart> */}
+
                         <View style={styles.container1}>
-                            <Text style={styles.subtitle}>Maiores Gastos <Feather name="trending-down" size={24} /></Text>
+                            <Text style={styles.subtitle}>Maiores Gastos<Feather name="trending-down" size={24} /></Text>
                             <FlatList
                                 data={[...data1.despesas].sort((a, b) => b.amount - a.amount).slice(0, 5)}
                                 renderItem={({ item }) => (

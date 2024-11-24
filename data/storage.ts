@@ -6,6 +6,7 @@ interface Movimentacao {
   amount: number;
   date: string;
   type: 'receitas' | 'despesas';
+  category: 'Alimentação' | 'Educação' | 'Lazer' | 'Moradia' | 'Saúde' | 'Transporte' | 'Outros' | 'Salário' | 'Outras Receitas';
 }
 
 export let dadosIniciais = { receitas: [], despesas: [] };

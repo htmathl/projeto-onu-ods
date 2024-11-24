@@ -15,17 +15,19 @@ export default function Page() {
             id: string;
             description: string;
             amount: number;
+            category: string;
         }[];
         receitas: {
             id: string;
             description: string;
             amount: number;
+            category: string;
         }[];
     }
 
     interface filterMovimentacoes {
-        receitas: Array<{ id: string; description: string; amount: number; date: string }>;
-        despesas: Array<{ id: string; description: string; amount: number; date: string }>;
+        receitas: Array<{ id: string; description: string; amount: number; date: string; category: string; }>;
+        despesas: Array<{ id: string; description: string; amount: number; date: string; category: string; }>;
     }
 
     const [isRefresh, setIsRefresh] = React.useState(false);
@@ -54,7 +56,7 @@ export default function Page() {
     };
 
     let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-    
+
     if (loading) {
         return (
             <View style={styles.container}>
@@ -82,7 +84,11 @@ export default function Page() {
                         {data1.despesas.length === 0 && <Text>Não há despesas cadastradas.</Text>}
                         {data1.despesas.map((despesa) => (
                             <View key={despesa.id} style={styles.item}>
-                                <View><Feather onPress={() => { excluirMovimentacao(despesa.id); setTimeout(() => listTransaction(), 50) }} name="trash" size={24} /></View>
+                                <View style={styles.transContainer}>
+                                    <View><Feather onPress={() => { excluirMovimentacao(despesa.id); setTimeout(() => listTransaction(), 50) }} name="trash" size={24} /></View>
+                                    <Text>{despesa.category}</Text>
+                                </View>
+
                                 <View style={styles.transContainer}>
                                     <Text style={styles.descricao}>{despesa.description}</Text>
                                     <Text style={styles.valor2}>{mask.format(despesa.amount)}</Text>
@@ -94,7 +100,11 @@ export default function Page() {
                         {data1.receitas.length === 0 && <Text>Não há receitas cadastradas.</Text>}
                         {data1.receitas.map((receita) => (
                             <View key={receita.id} style={styles.item}>
-                                <View><Feather onPress={() => { excluirMovimentacao(receita.id); setTimeout(() => listTransaction(), 50) }} name="trash" size={24} /></View>
+                                <View style={styles.transContainer}>
+                                    <View><Feather onPress={() => { excluirMovimentacao(receita.id); setTimeout(() => listTransaction(), 50) }} name="trash" size={24} /></View>
+                                    <Text>{receita.category}</Text>
+                                </View>
+
                                 <View style={styles.transContainer}>
                                     <Text style={styles.descricao}>{receita.description}</Text>
                                     <Text style={styles.valor}>{mask.format(receita.amount)}</Text>

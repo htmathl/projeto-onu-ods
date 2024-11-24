@@ -7,11 +7,12 @@ import { Stack } from "expo-router";
 import DatePicker from "react-native-modern-datepicker"
 import { Feather } from "@expo/vector-icons";
 import { saveMovimentacao } from "@/data/storage";
+import Dropdown from "@/components/DropDown";
 
 export default function Page() {
     const [isKeyboardVisible, setKeyboardVisible] = React.useState(false); // Adicionado estado
 
-    React.useEffect(() => { 
+    React.useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
             setKeyboardVisible(true);
 
@@ -49,21 +50,22 @@ export default function Page() {
     const [type, setType] = useState('receitas');
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const handleOnPressSrartDate = () => setOpenDatePicker(!openDatePicker);
+    const [category, setCategory] = useState('');
 
     const handleInputChange = (text: string) => {
         const formattedText = text.replace(/[^0-9,]/g, '');
-    
+
         // Substitui múltiplas vírgulas por uma única vírgula
         const singleCommaText = formattedText.replace(/,+/g, ',');
 
         // Atualiza o estado com o valor formatado
         setAmount(singleCommaText);
-      };
-    
+    };
+
 
     const handleOnPressSubmit = async () => {
 
-        if( !description || !amount ) {
+        if (!description || !amount) {
             ToastAndroid.show('Preencha todos os campos!', ToastAndroid.SHORT);
             return;
         }
@@ -74,7 +76,8 @@ export default function Page() {
                 description,
                 amount: Number(amount.replace(',', '.')),
                 type: type as 'receitas' | 'despesas',
-                date: formatDateToISO(selectedDate)
+                date: formatDateToISO(selectedDate),
+                category: category as 'Alimentação' | 'Educação' | 'Lazer' | 'Moradia' | 'Saúde' | 'Transporte' | 'Outros' | 'Salário' | 'Outras Receitas',
             })
 
             setDescription('');
@@ -93,7 +96,7 @@ export default function Page() {
     return (
         <>
             <Stack.Screen options={{ header: () => <Header label="Adicionar Movimentações" /> }} />
-            <View style={ !isKeyboardVisible ? styles.container : [ styles.container, { paddingBottom: 0 } ]}>
+            <View style={!isKeyboardVisible ? styles.container : [styles.container, { paddingBottom: 0 }]}>
 
                 <Radio options={[
                     { label: "Receita", value: "receitas" },
@@ -101,24 +104,49 @@ export default function Page() {
                 ]}
 
                     checkedValue={type}
-                    onChange={setType}
+                    onChange={(value) =>{
+                        setType(value);
+                        
+                    }}
                     style={{ marginBottom: 15 }}
                 />
 
-                <TextInput
-                    style={[styles.input]}
-                    value={description}
-                    onChangeText={setDescription}
-                    placeholder="Descrição"
-                />
-
                 <View style={styles.viewr}>
+
+                    <TextInput
+                        style={[styles.input, styles.inputV]}
+                        value={description}
+                        onChangeText={setDescription}
+                        placeholder="Descrição"
+                    />
+
                     <TextInput
                         style={[styles.input, styles.inputV]}
                         value={amount}
                         onChangeText={handleInputChange}
                         placeholder="Valor"
                         keyboardType="numeric"
+                    />
+                </View>
+
+                <View style={styles.viewr}>
+
+                    <Dropdown
+                        data={ type == 'despesas' ? [
+                            { value: 'alimentacao', label: 'Alimentação' },
+                            { value: 'educacao', label: 'Educação' },
+                            { value: 'lazer', label: 'Lazer' },
+                            { value: 'moradia', label: 'Moradia' },
+                            { value: 'saude', label: 'Saúde' },
+                            { value: 'transporte', label: 'Transporte' },
+                            { value: 'outros', label: 'Outros' },
+                            
+                        ] : [
+                            { value: 'salario', label: 'Salário' },
+                            { value: 'outras-receitas', label: 'Outras Receitas' },
+                        ]}
+                        onChange={(item) => setCategory(item.value)}
+                        placeholder="Selecione uma categoria"
                     />
 
                     <Pressable
@@ -128,6 +156,7 @@ export default function Page() {
                         <Text style={{ textAlign: 'center' }}>{selectedDate}</Text>
                         <Feather name="calendar" size={22} color={colors.roxo} />
                     </Pressable>
+
                 </View>
 
                 <Pressable style={styles.button} onPress={handleOnPressSubmit}>
@@ -218,6 +247,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
+
     },
 
     btnClose: {
@@ -241,5 +271,5 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5
-    }
+    },
 });
