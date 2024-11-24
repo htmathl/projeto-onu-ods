@@ -1,9 +1,29 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Keyboard } from 'react-native';
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
-import React from 'react';
 import TabBarButton from './TabBarButton';
+import React from 'react';
 
 export default function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+    const [isKeyboardVisible, setKeyboardVisible] = React.useState(false); // Adicionado estado
+
+    React.useEffect(() => { // Adicionado useEffect
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
+
+    if (isKeyboardVisible) { 
+        return null;
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.tabbar}>
