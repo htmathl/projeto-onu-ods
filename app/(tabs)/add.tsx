@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, Text, Pressable, Modal, ToastAndroid } from "react-native";
+import { View, StyleSheet, TextInput, Text, Pressable, Modal, ToastAndroid, Keyboard } from "react-native";
 import React, { useState } from "react";
 import colors from "@/constants/colors";
 import Radio from "@/components/input";
@@ -9,6 +9,23 @@ import { Feather } from "@expo/vector-icons";
 import { saveMovimentacao } from "@/data/storage";
 
 export default function Page() {
+    const [isKeyboardVisible, setKeyboardVisible] = React.useState(false); // Adicionado estado
+
+    React.useEffect(() => { 
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+
+        });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
+
 
     const today = new Date();
 
@@ -76,7 +93,7 @@ export default function Page() {
     return (
         <>
             <Stack.Screen options={{ header: () => <Header label="Adicionar Movimentações" /> }} />
-            <View style={styles.container}>
+            <View style={ !isKeyboardVisible ? styles.container : [ styles.container, { paddingBottom: 0 } ]}>
 
                 <Radio options={[
                     { label: "Receita", value: "receitas" },
@@ -116,13 +133,6 @@ export default function Page() {
                 <Pressable style={styles.button} onPress={handleOnPressSubmit}>
                     <Text style={styles.buttonText}>Enviar</Text>
                 </Pressable>
-
-                {/*<Pressable style={styles.button} onPress={ () => {
-                    AsyncStorage.removeItem('movimentacoes');
-                    alert('Excluiu tudo!');
-                }}>
-                    <Text style={styles.buttonText}>Excluir tudo</Text>
-                </Pressable>*/}
 
                 <Modal
                     animationType="fade"
