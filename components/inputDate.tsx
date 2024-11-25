@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native"
 import DatePicker from "react-native-modern-datepicker";
 
-export const InputDate = ({ onDateChange}: {onDateChange:Function}) => {
+export const InputDate = ({ onDateChange, primaryValue, setPrimaryValue }: {onDateChange:Function, primaryValue:string, setPrimaryValue:Function}) => {
     const today = new Date();
 
     const formatDateView = (date: Date) => date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
@@ -39,7 +39,7 @@ export const InputDate = ({ onDateChange}: {onDateChange:Function}) => {
             style={[styles.input, styles.inputV]}
             onPress={handleOnPressSrartDate}
         >
-            <Text style={{ textAlign: 'center' }}>{selectedDate}</Text>
+            <Text style={{ textAlign: 'center' }}>{primaryValue || selectedDate}</Text>
             <Feather name="calendar" size={22} color={colors.roxo} />
         </Pressable>
         
@@ -64,7 +64,7 @@ export const InputDate = ({ onDateChange}: {onDateChange:Function}) => {
                         borderColor: '#fff',
                     }} 
                 />
-                <Pressable onPress={() => {handleOnPressSrartDate(); handleDateList() }} style={styles.btnClose}>
+                <Pressable onPress={() => {handleOnPressSrartDate(); handleDateList(); setPrimaryValue('') }} style={styles.btnClose}>
                     <Text style={{ color: '#fff' }}>Pronto</Text>
                 </Pressable>
             </View>

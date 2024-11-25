@@ -36,6 +36,8 @@ export default function Page() {
 
     const [loading, setLoading] = React.useState(true);
 
+    const [ primaryValue, setPrimaryValue ] = React.useState('Selecione uma data');
+
     async function listTransaction() {
         setIsRefresh(true);
         const transaction = await getMovimentacoes();
@@ -43,6 +45,7 @@ export default function Page() {
         setLoading(false);
         setData(transaction);
         setIsRefresh(false)
+        setPrimaryValue('Selecione uma data')
     }
 
     useFocusEffect(
@@ -68,7 +71,7 @@ export default function Page() {
         <>
             <Stack.Screen options={{ header: () => <Header label="Movimentações" /> }} />
             <View style={{ backgroundColor: colors.branco, alignItems: 'center', paddingBottom: 10 }}>
-                <InputDate onDateChange={handleDateChange} />
+                <InputDate onDateChange={handleDateChange} primaryValue={primaryValue} setPrimaryValue={setPrimaryValue} />
             </View>
             <FlatList
                 style={styles.container}

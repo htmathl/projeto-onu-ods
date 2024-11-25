@@ -21,18 +21,18 @@ interface DropDownProps {
   data: OptionItem[];
   onChange: (item: OptionItem) => void;
   placeholder: string;
+  value: string;
 }
 
 export default function Dropdown({
   data,
   onChange,
   placeholder,
+  value,
 }: DropDownProps) {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpanded = useCallback(() => setExpanded(!expanded), [expanded]);
-
-  const [value, setValue] = useState("");
 
   const buttonRef = useRef<View>(null);
 
@@ -40,10 +40,10 @@ export default function Dropdown({
 
   const onSelect = useCallback((item: OptionItem) => {
     onChange(item);
-    setValue(item.label);
     setExpanded(false);
     
   }, []);
+
   return (
     <View 
       ref={buttonRef}

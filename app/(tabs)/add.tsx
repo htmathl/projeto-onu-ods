@@ -71,21 +71,27 @@ export default function Page() {
         }
 
         try {
-            await saveMovimentacao({
-                id: Math.random().toString(36).substr(2, 9),
-                description,
-                amount: Number(amount.replace(',', '.')),
-                type: type as 'receitas' | 'despesas',
-                date: formatDateToISO(selectedDate),
-                category: category as 'Alimentação' | 'Educação' | 'Lazer' | 'Moradia' | 'Saúde' | 'Transporte' | 'Outros' | 'Salário' | 'Outras Receitas',
-            })
+            if (category) {
+                await saveMovimentacao({
+                    id: Math.random().toString(36).substr(2, 9),
+                    description,
+                    amount: Number(amount.replace(',', '.')),
+                    type: type as 'receitas' | 'despesas',
+                    date: formatDateToISO(selectedDate),
+                    category: category as 'Alimentação' | 'Educação' | 'Lazer' | 'Moradia' | 'Saúde' | 'Transporte' | 'Outros' | 'Salário' | 'Outras Receitas',
+                })
 
-            setDescription('');
-            setAmount('');
-            setSelectedDate(formatDateView(today));
-            setType('receitas');
+                setDescription('');
+                setAmount('');
+                setCategory('');
+                setSelectedDate(formatDateView(today));
+                setType('receitas');
 
-            ToastAndroid.show('Movimentação salva com sucesso!', ToastAndroid.SHORT);
+                ToastAndroid.show('Movimentação salva com sucesso!', ToastAndroid.SHORT);
+
+            } else {
+                ToastAndroid.show('Categoria inválida para o tipo de movimentação!', ToastAndroid.SHORT);
+            }
 
         } catch (error) {
             ToastAndroid.showWithGravity('Erro ao salvar movimentação!', ToastAndroid.LONG, ToastAndroid.TOP);
@@ -104,9 +110,9 @@ export default function Page() {
                 ]}
 
                     checkedValue={type}
-                    onChange={(value) =>{
+                    onChange={(value) => {
                         setType(value);
-                        
+                        setCategory('');
                     }}
                     style={{ marginBottom: 15 }}
                 />
@@ -132,7 +138,7 @@ export default function Page() {
                 <View style={styles.viewr}>
 
                     <Dropdown
-                        data={ type == 'despesas' ? [
+                        data={type == 'despesas' ? [
                             { value: 'alimentacao', label: 'Alimentação' },
                             { value: 'educacao', label: 'Educação' },
                             { value: 'lazer', label: 'Lazer' },
@@ -140,13 +146,14 @@ export default function Page() {
                             { value: 'saude', label: 'Saúde' },
                             { value: 'transporte', label: 'Transporte' },
                             { value: 'outros', label: 'Outros' },
-                            
+
                         ] : [
                             { value: 'salario', label: 'Salário' },
                             { value: 'outras-receitas', label: 'Outras Receitas' },
                         ]}
-                        onChange={(item) => setCategory(item.value)}
+                        onChange={(item) => setCategory(item.label)}
                         placeholder="Selecione uma categoria"
+                        value={category}
                     />
 
                     <Pressable
