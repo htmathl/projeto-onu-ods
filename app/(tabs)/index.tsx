@@ -73,19 +73,28 @@ export default function Page() {
         const summary: { [key: string]: number } = {};
         const summary1: { [key: string]: number } = {};
 
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
         data.despesas.forEach(despesa => {
-            if (summary[despesa.category]) {
-                summary[despesa.category] += despesa.amount;
-            } else {
-                summary[despesa.category] = despesa.amount;
+            const despesaDate = new Date(despesa.date);
+            if (despesaDate.getMonth() === currentMonth && despesaDate.getFullYear() === currentYear) {
+                if (summary[despesa.category]) {
+                    summary[despesa.category] += despesa.amount;
+                } else {
+                    summary[despesa.category] = despesa.amount;
+                }
             }
         });
-
+    
         data.receitas.forEach(receita => {
-            if (summary1[receita.category]) {
-                summary1[receita.category] += receita.amount;
-            } else {
-                summary1[receita.category] = receita.amount;
+            const receitaDate = new Date(receita.date);
+            if (receitaDate.getMonth() === currentMonth && receitaDate.getFullYear() === currentYear) {
+                if (summary1[receita.category]) {
+                    summary1[receita.category] += receita.amount;
+                } else {
+                    summary1[receita.category] = receita.amount;
+                }
             }
         });
 
@@ -178,6 +187,7 @@ export default function Page() {
                                     <View key={item.category} style={styles.card}>
                                         <Text style={styles.descricao1}>{item.category}</Text>
                                         <Text style={styles.descricao}>{mask.format(item.amount)}</Text>
+                                        <Text style={styles.percent}>{ (item.amount * 100 / despesas).toFixed(2) }%</Text>
                                     </View>
                                 )}
                                 keyExtractor={(item) => item.category}
@@ -192,6 +202,7 @@ export default function Page() {
                                     <View key={item.category} style={styles.card}>
                                         <Text style={styles.descricao1}>{item.category}</Text>
                                         <Text style={styles.descricao}>{mask.format(item.amount)}</Text>
+                                        <Text style={styles.percent}>{ (item.amount * 100 / receitas).toFixed(2) }%</Text>
                                     </View>
                                 )}
                                 keyExtractor={(item) => item.category}
@@ -249,10 +260,19 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         padding: 20,
     },
+    percent:{
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        textAlign: "center",
+        width: 70,
+        padding: 1,
+        marginTop: 20,
+        borderRadius: 8,
+        color: colors.roxo,
+    },
 
     card: {
         minWidth: 170,
-        height: 120,
+        height: 150,
         padding: 15,
         marginVertical: 10,
         marginHorizontal: 5,
@@ -264,6 +284,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 8,
         elevation: 5,
+        alignItems: "center",
     },
     descricao1: {
         color: colors.branco,
