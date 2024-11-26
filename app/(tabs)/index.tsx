@@ -114,14 +114,17 @@ export default function Page() {
             summarizeByCategory(transaction);
 
             const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
             const totalDespesas = transaction.despesas.reduce((acc: number, item: despesas) => {
                 const itemMonth = new Date(item.date).getMonth();
-                return itemMonth === currentMonth ? acc + item.amount : acc;
+                const itemYear = new Date(item.date).getFullYear();
+                return itemMonth === currentMonth && itemYear === currentYear ? acc + item.amount : acc;
             }, 0);
 
             const totalReceitas = transaction.receitas.reduce((acc: number, item: despesas) => {
                 const itemMonth = new Date(item.date).getMonth();
-                return itemMonth === currentMonth ? acc + item.amount : acc;
+                const itemYear = new Date(item.date).getFullYear();
+                return itemMonth === currentMonth && itemYear === currentYear ? acc + item.amount : acc;
             }, 0);
 
             setDespesas(totalDespesas);
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     percent:{
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        backgroundColor: "rgba(255, 255, 255, 0.88)",
         textAlign: "center",
         width: 70,
         padding: 1,
