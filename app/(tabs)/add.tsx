@@ -8,6 +8,7 @@ import DatePicker from "react-native-modern-datepicker"
 import { Feather } from "@expo/vector-icons";
 import { saveMovimentacao } from "@/data/storage";
 import Dropdown from "@/components/DropDown";
+import { CheckBox } from "@/components/CheckBox";
 
 export default function Page() {
     const [isKeyboardVisible, setKeyboardVisible] = React.useState(false); // Adicionado estado
@@ -51,6 +52,7 @@ export default function Page() {
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const handleOnPressSrartDate = () => setOpenDatePicker(!openDatePicker);
     const [category, setCategory] = useState('');
+    const [reco, setReco] = useState([]);
 
     const handleInputChange = (text: string) => {
         const formattedText = text.replace(/[^0-9,]/g, '');
@@ -79,12 +81,14 @@ export default function Page() {
                     type: type as 'receitas' | 'despesas',
                     date: formatDateToISO(selectedDate),
                     category: category as 'Alimentação' | 'Educação' | 'Lazer' | 'Moradia' | 'Saúde' | 'Transporte' | 'Outros' | 'Salário' | 'Outras Receitas',
+                    recorrying: reco.length ? true : false
                 })
 
                 setDescription('');
                 setAmount('');
                 setCategory('');
                 setSelectedDate(formatDateView(today));
+                setReco([]);
                 setType('receitas');
 
                 ToastAndroid.show('Movimentação salva com sucesso!', ToastAndroid.SHORT);
@@ -114,7 +118,7 @@ export default function Page() {
                         setType(value);
                         setCategory('');
                     }}
-                    style={{ marginBottom: 15 }}
+                    style={{ marginBottom: 16 }}
                 />
 
                 <View style={styles.viewr}>
@@ -166,6 +170,18 @@ export default function Page() {
 
                 </View>
 
+                <CheckBox
+                    options={['Movimentação recorrente']}
+                    checkedValues={reco}
+                    onChange={(value:[]) => {
+                        setReco(value)
+                        value.length ? alert(
+                            `No campo "Data" selecione:\n\nDia que será cobrado mensalmente; \nMês e ano desejado para a última cobrança.`
+                        ) : null
+                    }}
+                    style={{ marginBottom: 16, marginTop: 16 }}
+                />
+
                 <Pressable style={styles.button} onPress={handleOnPressSubmit}>
                     <Text style={styles.buttonText}>Enviar</Text>
                 </Pressable>
@@ -208,7 +224,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         padding: 24,
-        gap: 24,
+        gap: 10,
         paddingBottom: 150,
         backgroundColor: '#fff',
     },
@@ -228,13 +244,16 @@ const styles = StyleSheet.create({
     },
 
     button: {
-        marginTop: 24,
+        marginTop: 16,
         backgroundColor: colors.roxo,
         borderWidth: 0,
         padding: 15,
         paddingHorizontal: 28,
         borderRadius: 12,
         width: "50%",
+        height: 55,
+        fontSize: 16,
+        justifyContent: 'center',
     },
 
     buttonText: {
@@ -254,7 +273,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-
     },
 
     btnClose: {

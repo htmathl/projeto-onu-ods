@@ -7,30 +7,73 @@ interface Movimentacao {
   date: string;
   type: 'receitas' | 'despesas';
   category: 'Alimentação' | 'Educação' | 'Lazer' | 'Moradia' | 'Saúde' | 'Transporte' | 'Outros' | 'Salário' | 'Outras Receitas';
+  recorrying: boolean;
 }
 
 export let dadosIniciais = { receitas: [], despesas: [] };
 
 export const saveMovimentacao = async (movimentacao: Movimentacao) => {
   try {
-    const atual = await AsyncStorage.getItem('movimentacoes');
-    const dados = atual ? JSON.parse(atual) : { receitas: [], despesas: [] };
-    
-    if (movimentacao.type === 'receitas') {
-      dados.receitas.push(movimentacao);
-    } else {
-      dados.despesas.push(movimentacao);
-    }
-    
-    await AsyncStorage.setItem('movimentacoes', JSON.stringify(dados));
+    // Recuperar dados existentes
+    const storedData = await AsyncStorage.getItem("movimentacoes");
+    const currentData = storedData ? JSON.parse(storedData) : { receitas: [], despesas: [] };
 
-    dadosIniciais = dados;
-    return true;
+    if (movimentacao.recorrying) {
+      const recurringMovements = generateRecurringMovements(movimentacao);
+      // Adicionar movimentações recorrentes
+      currentData[movimentacao.type] = [
+        ...currentData[movimentacao.type],
+        ...recurringMovements,
+      ];
+    } else {
+      // Adicionar movimentação única
+      currentData[movimentacao.type].push(movimentacao);
+    }
+
+    // Salvar novamente no AsyncStorage
+    await AsyncStorage.setItem("movimentacoes", JSON.stringify(currentData));
   } catch (error) {
-    console.error('Erro ao salvar:', error);
-    return false;
+    console.error("Erro ao salvar movimentação:", error);
+    throw error;
   }
-};
+}
+
+// Função para gerar as movimentações recorrentes
+function generateRecurringMovements(movimentacao: {
+  id: string;
+  description: string;
+  amount: number;
+  type: "receitas" | "despesas";
+  date: string; // ISO format
+  category: string;
+  recorrying: boolean;
+}): Array<{
+  id: string;
+  description: string;
+  amount: number;
+  type: "receitas" | "despesas";
+  date: string; // ISO format
+  category: string;
+  recorrying: boolean;
+}> {
+  const recurringMovements = [];
+  const startDate = new Date(); // Começa no mês atual
+  const endDate = new Date(movimentacao.date); // Data final definida pelo usuário
+
+  while (startDate <= endDate) {
+    // Gerar nova movimentação para o mês corrente
+    recurringMovements.push({
+      ...movimentacao,
+      id: Math.random().toString(36).substr(2, 9), // Gerar novo ID único
+      date: `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`,
+    });
+
+    // Avançar para o próximo mês
+    startDate.setMonth(startDate.getMonth() + 1);
+  }
+
+  return recurringMovements;
+}
 
 export const getMovimentacoes = async () => {
   try {
@@ -57,7 +100,7 @@ export const excluirMovimentacao = async (id: string) => {
     const data = await AsyncStorage.getItem('movimentacoes');
     if (data) {
       const movimentacoes = JSON.parse(data) as { receitas: Movimentacao[], despesas: Movimentacao[] };
-      
+
       const updatedReceitas = movimentacoes.receitas.filter(item => item.id !== id);
       const updatedDespesas = movimentacoes.despesas.filter(item => item.id !== id);
 
@@ -78,6 +121,16 @@ export const excluirMovimentacao = async (id: string) => {
   }
 };
 
+export const excluirTudo = async () => {
+  try {
+    await AsyncStorage.removeItem('movimentacoes');
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir tudo:', error);
+    return false;
+  }
+};
+
 export const filtrarMovimentacoes = async (data: string) => {
   try {
     const movimentacoes = await getMovimentacoes();
@@ -89,5 +142,3 @@ export const filtrarMovimentacoes = async (data: string) => {
     return { receitas: [], despesas: [] };
   }
 };
-
-

@@ -7,7 +7,6 @@ import Header from "@/components/header";
 import { GestureHandlerRootView, ScrollView } from "react-native-gesture-handler";
 import { getMovimentacoes } from "@/data/storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { VictoryChart, VictoryLine, VictoryScatter, VictoryTheme, } from "victory-native"
 
 const today = new Date();
 const month = today.getMonth();
@@ -32,15 +31,22 @@ interface Movimentacoes {
         id: string;
         description: string;
         amount: number;
+        category: string;
+        recorrying: boolean;
+        date: string;
     }[];
     receitas: {
         id: string;
         description: string;
         amount: number;
+        category: string;
+        recorrying: boolean;
+        date: string;
     }[];
 }
 
 interface despesas {
+    date: string | number | Date;
     id: string;
     description: string;
     amount: number;
@@ -58,9 +64,34 @@ export default function Page() {
     const [receitas, setReceitas] = React.useState(0);
 
     const [toggleDespesa, setToggleDespesa] = React.useState(false);
-    const [chartData, setChartData] = React.useState([]);
+    const [categorySummaryReceita, setCategorySummaryReceita] = React.useState({} as { [key: string]: number });
+    const [categorySummaryDespesa, setCategorySummaryDespesa] = React.useState({} as { [key: string]: number });
 
     let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    function summarizeByCategory(data: Movimentacoes) {
+        const summary: { [key: string]: number } = {};
+        const summary1: { [key: string]: number } = {};
+
+        data.despesas.forEach(despesa => {
+            if (summary[despesa.category]) {
+                summary[despesa.category] += despesa.amount;
+            } else {
+                summary[despesa.category] = despesa.amount;
+            }
+        });
+
+        data.receitas.forEach(receita => {
+            if (summary1[receita.category]) {
+                summary1[receita.category] += receita.amount;
+            } else {
+                summary1[receita.category] = receita.amount;
+            }
+        });
+
+        setCategorySummaryDespesa(summary);
+        setCategorySummaryReceita(summary1);
+    }
 
     async function listTransaction() {
         setIsRefresh(true);
@@ -71,18 +102,21 @@ export default function Page() {
             setData(transaction);
             setIsRefresh(false);
 
-            const totalDespesas = transaction.despesas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
-            const totalReceitas = transaction.receitas.reduce((acc: number, item: despesas) => acc + item.amount, 0);
+            summarizeByCategory(transaction);
+
+            const currentMonth = new Date().getMonth();
+            const totalDespesas = transaction.despesas.reduce((acc: number, item: despesas) => {
+                const itemMonth = new Date(item.date).getMonth();
+                return itemMonth === currentMonth ? acc + item.amount : acc;
+            }, 0);
+
+            const totalReceitas = transaction.receitas.reduce((acc: number, item: despesas) => {
+                const itemMonth = new Date(item.date).getMonth();
+                return itemMonth === currentMonth ? acc + item.amount : acc;
+            }, 0);
 
             setDespesas(totalDespesas);
             setReceitas(totalReceitas);
-
-            // const formattedData = transaction.despesas.map((item, index) => ({
-            //     x: dictMeses[index % 12].substring(0, 3).toLowerCase(),
-            //     y: transaction.receitas[index] ? transaction.receitas[index].amount - item.amount : -item.amount
-            // }))
-
-            // setChartData(formattedData);
         } catch (error) {
             console.error(error);
         } finally {
@@ -136,54 +170,31 @@ export default function Page() {
                             <Feather name={!toggleDespesa ? "arrow-down" : "arrow-up"} size={30} color={colors.branco} onPress={() => { setToggleDespesa(!toggleDespesa); }} />
                         </View>
 
-                        {/* <VictoryChart
-                            height={390}
-                            theme={VictoryTheme.clean}
-                            width={Dimensions.get("window").width}
-                            padding={{ left: 50, right: 20, top: 20, bottom: 50 }}
-                        >
-                            <VictoryLine
-                                style={{
-                                    data: { stroke: colors.roxo },
-                                    parent: { border: "1px solid #ccc" }
-                                }}
-                                data={chartData}
-                            />
-                            <VictoryScatter
-                                style={{ data: { fill: colors.roxo } }}
-                                data={chartData}
-                                size={5}
-                            />
-                        </VictoryChart> */}
-
                         <View style={styles.container1}>
-                            <Text style={styles.subtitle}>Maiores Gastos<Feather name="trending-down" size={24} /></Text>
+                            <Text style={styles.subtitle}>Depesas <Feather name="trending-down" size={24} /></Text>
                             <FlatList
-                                data={[...data1.despesas].sort((a, b) => b.amount - a.amount).slice(0, 5)}
+                                data={Object.keys(categorySummaryDespesa).map(category => ({ category, amount: categorySummaryDespesa[category] }))}
                                 renderItem={({ item }) => (
-                                    <View key={item.id} style={styles.card}>
-                                        <Text style={styles.descricao1}>{item.description}</Text>
+                                    <View key={item.category} style={styles.card}>
+                                        <Text style={styles.descricao1}>{item.category}</Text>
                                         <Text style={styles.descricao}>{mask.format(item.amount)}</Text>
                                     </View>
                                 )}
-                                keyExtractor={(item) => item.id}
+                                keyExtractor={(item) => item.category}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                             />
 
-                            <Text style={styles.subtitle}>Fontes de Renda <Feather name="trending-up" size={24} /> </Text>
+                            <Text style={styles.subtitle}>Receitas <Feather name="trending-up" size={24} /> </Text>
                             <FlatList
-                                refreshControl={
-                                    <RefreshControl refreshing={isRefresh} onRefresh={listTransaction} />
-                                }
-                                data={[...data1.receitas]}
+                                data={Object.keys(categorySummaryReceita).map(category => ({ category, amount: categorySummaryReceita[category] }))}
                                 renderItem={({ item }) => (
-                                    <View key={item.id} style={styles.card}>
-                                        <Text style={styles.descricao1}>{item.description}</Text>
+                                    <View key={item.category} style={styles.card}>
+                                        <Text style={styles.descricao1}>{item.category}</Text>
                                         <Text style={styles.descricao}>{mask.format(item.amount)}</Text>
                                     </View>
                                 )}
-                                keyExtractor={(item) => item.id}
+                                keyExtractor={(item) => item.category}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                             />

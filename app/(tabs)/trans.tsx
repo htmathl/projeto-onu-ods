@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, FlatList, RefreshControl } from "react-native";
 import React from "react";
 import { Stack } from "expo-router";
 import Header from "@/components/header";
-import { excluirMovimentacao, getMovimentacoes } from "@/data/storage";
+import { excluirMovimentacao, excluirTudo, getMovimentacoes } from "@/data/storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import { InputDate } from "@/components/inputDate";
@@ -16,18 +16,22 @@ export default function Page() {
             description: string;
             amount: number;
             category: string;
+            recorrying: boolean;
+            date: string;
         }[];
         receitas: {
             id: string;
             description: string;
             amount: number;
             category: string;
+            recorrying: boolean;
+            date: string;
         }[];
     }
 
     interface filterMovimentacoes {
-        receitas: Array<{ id: string; description: string; amount: number; date: string; category: string; }>;
-        despesas: Array<{ id: string; description: string; amount: number; date: string; category: string; }>;
+        receitas: Array<{ id: string; description: string; amount: number; date: string; category: string; recorrying: boolean; }>;
+        despesas: Array<{ id: string; description: string; amount: number; date: string; category: string; recorrying: boolean }>;
     }
 
     const [isRefresh, setIsRefresh] = React.useState(false);
@@ -36,7 +40,7 @@ export default function Page() {
 
     const [loading, setLoading] = React.useState(true);
 
-    const [ primaryValue, setPrimaryValue ] = React.useState('Selecione uma data');
+    const [primaryValue, setPrimaryValue] = React.useState('Selecione uma data');
 
     async function listTransaction() {
         setIsRefresh(true);
@@ -59,6 +63,8 @@ export default function Page() {
     };
 
     let mask = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    const formatDateView = (date: Date) => date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
 
     if (loading) {
         return (
@@ -93,8 +99,15 @@ export default function Page() {
                                 </View>
 
                                 <View style={styles.transContainer}>
-                                    <Text style={styles.descricao}>{despesa.description}</Text>
-                                    <Text style={styles.valor2}>{mask.format(despesa.amount)}</Text>
+                                    <Text style={styles.descricao}>{despesa.recorrying ? despesa.description + ' - ' + formatDateView(new Date(despesa.date)) : despesa.description}</Text>
+                                    <Text style={styles.valor2}>
+                                        {
+                                            despesa.recorrying ?
+                                                <Feather name="refresh-ccw" size={15} />
+                                                : ""
+                                        }
+                                        {" " + mask.format(despesa.amount)}
+                                    </Text>
                                 </View>
                             </View>
                         ))}
@@ -109,8 +122,15 @@ export default function Page() {
                                 </View>
 
                                 <View style={styles.transContainer}>
-                                    <Text style={styles.descricao}>{receita.description}</Text>
-                                    <Text style={styles.valor}>{mask.format(receita.amount)}</Text>
+                                    <Text style={styles.descricao}>{receita.recorrying ? receita.description + " - " + formatDateView(new Date(receita.date)) : receita.description}</Text>
+                                    <Text style={styles.valor}>
+                                        {
+                                            receita.recorrying ?
+                                                <Feather name="refresh-ccw" size={15} />
+                                                : ""
+                                        }
+                                        {" " + mask.format(receita.amount)}
+                                    </Text>
                                 </View>
                             </View>
                         ))}

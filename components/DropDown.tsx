@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "flex-end",
     alignItems: "flex-start",
-    flex: 0.55,
+    flex: 0.461,
   },
   optionItem: {
     height: 40,
